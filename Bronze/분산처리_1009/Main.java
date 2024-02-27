@@ -24,6 +24,7 @@ class Main {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
 
+
         int t = Integer.parseInt(br.readLine());
 
         for (int i = 0; i < t; i++) {
