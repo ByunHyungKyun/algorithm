@@ -20,6 +20,8 @@ class Main {
             list.add(br.readLine());
         }
 
+
+
         for(int i = 0 ; i < n;i++){
             String result = "";
             StringTokenizer first = new StringTokenizer(list.get(i));
