@@ -125,13 +125,11 @@ class Main {
             valList.add(strMap);
         }
 
-        String teamName = String.valueOf(valList.get(0).get("name"));
         int temp = Integer.parseInt(String.valueOf(valList.get(0).get("result")));
         ArrayList<String> resultlist = new ArrayList<>();
 
         for (int i = 0; i < valList.size(); i++) {
                 if (temp < Integer.parseInt(String.valueOf(valList.get(i).get("result")))) {
-                    teamName = String.valueOf(valList.get(i).get("name"));
                     temp = Integer.parseInt(String.valueOf(valList.get(i).get("result")));
                 }
         }
