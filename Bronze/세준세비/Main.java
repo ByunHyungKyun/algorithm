@@ -44,6 +44,7 @@ class Main {
             for (int j = 0; j < a; j++) {
                 alist.add(Integer.parseInt(val.nextToken()));
             }
+
             val = new StringTokenizer(br.readLine());
             for (int j = 0; j < b; j++) {
                 blist.add(Integer.parseInt(val.nextToken()));
