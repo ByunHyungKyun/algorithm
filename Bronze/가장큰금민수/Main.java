@@ -1,10 +1,7 @@
 package Bronze.가장큰금민수;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
-public class Main {
-
+class Main {
     public static void main(String[] args) throws IOException {
 
         /**
@@ -18,22 +15,86 @@ public class Main {
          출력
          첫째 줄에 N보다 작거나 같은 금민수 중 가장 큰 것을 출력한다.
          */
-
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String N = br.readLine();
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
-        while(true) {
-            boolean check = true;
-            for(int i = 0; i < N.length(); i++) {
-                if(N.charAt(i) != '4' && N.charAt(i) != '7') {
-                    check = false;
-                    break;
+        String val = br.readLine();
+
+        char[] valList = val.toCharArray();
+        boolean resultflag = false;
+        String result = "";
+
+        for (char aa : valList) {
+            int temp = Integer.parseInt(String.valueOf(aa));
+            if (temp != 4 && temp != 7) {
+                resultflag = true;
+            }
+        }
+        boolean testflag = false;
+        boolean reflag = true;
+        if (resultflag) {
+            boolean flag = true;
+            for (int i = 0; i < valList.length; i++) {
+                int temp = Integer.parseInt(String.valueOf(valList[i]));
+                if (i == 0) {
+                    if (4 <= temp && temp < 7 ) {
+                        result += flag(temp);
+                        testflag = true;
+                    } else if (7 == temp) {
+                        result += flag(temp);
+                    } else if (7 < temp) {
+                        result += flag(temp);
+                        testflag = true;
+                    } else {
+                        flag = false;
+                    }
+                } else {
+                    if(temp != 0){
+                        reflag =  false;
+                    }
+                    if(testflag){
+                        result += "7";
+                    }else{
+                        if (flag) {
+                            result += flag(temp);
+                        } else {
+                            result += "7";
+                        }
+                    }
                 }
             }
-            if(check == true) break;
-            else N = String.valueOf(Integer.parseInt(N) - 1);
+        } else {
+            result = val;
         }
-        System.out.println(N);
+
+        String realResult = "";
+        if(reflag){
+            realResult = result.substring(1);
+        }else {
+            realResult = result;
+        }
+
+        bw.write(realResult);
+
+        bw.close();
+        br.close();
+    }
+
+    public static String flag(int temp) {
+        String a = "7";
+        String b = "4";
+        if (temp == 0) {
+            return a;
+        } else if (temp == 4) {
+            return b;
+        } else if (temp == 7) {
+            return a;
+        } else if (4 < temp && temp < 7) {
+            return b;
+        } else if (7 < temp && temp < 4) {
+            return a;
+        }
+        return a;
     }
 
 }
