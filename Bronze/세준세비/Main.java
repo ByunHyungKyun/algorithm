@@ -50,8 +50,6 @@ class Main {
                 blist.add(Integer.parseInt(val.nextToken()));
             }
 
-
-
             Collections.sort(alist);
             Collections.sort(blist);
 
