@@ -1,4 +1,4 @@
-package Bronze.분수찾기_1193;
+package Silver.분수찾기_1193;
 
 import java.io.*;
 
