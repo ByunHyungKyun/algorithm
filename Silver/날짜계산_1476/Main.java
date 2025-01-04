@@ -1,64 +1,43 @@
 package Silver.날짜계산_1476;
+// 당신은 또한 가져오기를 사용할 수 있습니다, 예를 들면: // import java.util. *;  // 디버깅 목적으로 stdout에 쓸 수 있습니다, 예. // System.out.println("이것은 디버그 메시지입니다");  클래스 솔루션 { Public int solution(int[] start, int[] dest, int[] limit) { // 여기에서 당신의 해결책을 구현하세요 }ss// you can also use imports, for example:
+// import java.util.*;
 
-import java.io.*;
-import java.util.StringTokenizer;
+// you can write to stdout for debugging purposes, e.g.
+// System.out.println("this is a debug message")sd;
 
-class Main {
-    public static void main(String[] args) throws IOException {
+class Solution2 {
+    static int maxValue = 0;
+    static int maxLocation = 0;
+    static int sum = 0;
 
-        /**
-         문제
-         준규가 사는 나라는 우리가 사용하는 연도와 다른 방식을 이용한다. 준규가 사는 나라에서는 수 3개를 이용해서 연도를 나타낸다. 각각의 수는 지구, 태양, 그리고 달을 나타낸다.
-         지구를 나타내는 수를 E, 태양을 나타내는 수를 S, 달을 나타내는 수를 M이라고 했을 때, 이 세 수는 서로 다른 범위를 가진다. (1 ≤ E ≤ 15, 1 ≤ S ≤ 28, 1 ≤ M ≤ 19)
-         우리가 알고있는 1년은 준규가 살고있는 나라에서는 1 1 1로 나타낼 수 있다. 1년이 지날 때마다, 세 수는 모두 1씩 증가한다. 만약, 어떤 수가 범위를 넘어가는 경우에는 1이 된다.
-         예를 들어, 15년은 15 15 15로 나타낼 수 있다. 하지만, 1년이 지나서 16년이 되면 16 16 16이 아니라 1 16 16이 된다. 이유는 1 ≤ E ≤ 15 라서 범위를 넘어가기 때문이다.
-         E, S, M이 주어졌고, 1년이 준규가 사는 나라에서 1 1 1일때, 준규가 사는 나라에서 E S M이 우리가 알고 있는 연도로 몇 년인지 구하는 프로그램을 작성하시오.
+    public int solution(int[] start, int[] dest, int[] limit) {
+        // Implement your solution here
 
-
-         입력
-         첫째 줄에 세 수 E, S, M이 주어진다. 문제에 나와있는 범위를 지키는 입력만 주어진다.
-
-
-         출력
-         첫째 줄에 E S M으로 표시되는 가장 빠른 연도를 출력한다. 1 1 1은 항상 1이기 때문에, 정답이 음수가 나오는 경우는 없다.
-
-
-         내생각 : 숫자를 자동으로 늘리는 데 초기회 시킨다 --> 해당 숫자가 되었을때 멈추면 된다 크크
-         */
-
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
-        StringTokenizer val = new StringTokenizer(br.readLine());
-
-        int E = Integer.parseInt(val.nextToken());
-        int S = Integer.parseInt(val.nextToken());
-        int M = Integer.parseInt(val.nextToken());
-        int aroundE = 0;
-        int aroundS = 0;
-        int aroundM = 0;
-        int N = 0;
-
-        while (true) {
-            aroundE++;
-            aroundS++;
-            aroundM++;
-            N++;
-            if (15 < aroundE) {
-                aroundE = 1;
-            }
-            if (28 < aroundS) {
-                aroundS = 1;
-            }
-            if (19 < aroundM) {
-                aroundM = 1;
-            }
-            if (aroundE == E && aroundS == S && aroundM == M) {
-                break;
-            }
+        for (int i = 0; i < start.length; i++) {
+            MaxValue(maxValue, start[i]);
+            MaxValue(maxValue, dest[i]);
+            SumValue(Math.abs(start[i] - dest[i]));
         }
-        bw.write(String.valueOf(N));
-        bw.close();
-        br.close();
+
+        if (limit[maxLocation] < sum) {
+            sum = limit[maxLocation];
+        }
+
+        return sum;
+    }
+
+    public void MaxValue(int maxVal, int val) {
+        if (maxVal < val) {
+            maxValue = val;
+            maxLocation = maxValue;
+        }
+    }
+
+    public void SumValue(int result) {
+        if (result == 1) {
+            sum += 3;
+        } else {
+            sum += (1 + (result * 2));
+        }
     }
 }
