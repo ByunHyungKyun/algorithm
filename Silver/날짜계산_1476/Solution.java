@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 class Solution {
     public int solution(Pizza[] menu, OrderItem[] order) {
         int totalCost = 0;
@@ -17,8 +16,144 @@ class Solution {
         for (Pizza pizza : menu) {
             pizzaName.put(pizza.name, pizza);
         }
-        List<Integer> pizzaPrices = new ArrayList<>();
 
+        for (OrderItem item : order) {
+            Pizza pizza = pizzaName.get(item.name);
+            int price = 0;
+            switch (item.size) {
+                case "Small":
+                    price = pizza.price_S;
+                    break;
+                case "Medium":
+                    price = pizza.price_M;
+                    break;
+                case "Large":
+                    price = pizza.price_L;
+                    break;
+            }
+            totalCost += price * item.quantity;
+        }
+
+        int minCost = totalCost; // 초기값은 할인 없는 총 비용
+
+
+        // 1. 3개 이상 피자 할인
+        int discount1Cost = totalCost;
+        if(totalPizzas(order) >= 3){
+            discount1Cost =  firstSolustion(order,pizzaName,totalCost);
+            minCost = Math.min(minCost,discount1Cost);
+        }
+
+
+        // 2. 5개 동일 피자 할인
+        int discount2Cost = totalCost;
+        if (hasFiveSamePizza(order)) {
+            discount2Cost = secondSolustion(order, pizzaName, totalCost);
+            minCost = Math.min(minCost,discount2Cost);
+        }
+
+        // 3. 스몰 - 라지 조합 할인
+        int discount3Cost = thridSolustion(order, pizzaName, totalCost);
+        minCost = Math.min(minCost,discount3Cost);
+
+
+        // 4. 라지 피자 3개 이상 할인
+        int discount4Cost = totalCost;
+        if (hasThreeLargePizza(order)) {
+            discount4Cost = fourthSolustion(order, pizzaName, totalCost);
+            minCost = Math.min(minCost,discount4Cost);
+        }
+
+        return minCost;
+    }
+
+    public int fourthSolustion(OrderItem[] order, Map<String, Pizza> pizzaName, int cost) {
+        int minCost = cost;
+        List<OrderItem> largePizzas = new ArrayList<>();
+        for (OrderItem item : order) {
+            if (item.size.equals("Large")) {
+                for (int i = 0; i < item.quantity; i++) {
+                    largePizzas.add(item);
+                }
+            }
+        }
+        if (largePizzas.size() >= 3) {
+            for (int i = 0; i <= largePizzas.size() - 3; i++) {
+                int tempCost = cost;
+                for (int j = i; j < i + 3; j++) {
+                    Pizza pizza = pizzaName.get(largePizzas.get(j).name);
+                    tempCost -= pizza.price_L;
+                    tempCost += pizza.price_M;
+                }
+                minCost = Math.min(minCost, tempCost);
+            }
+        }
+        return minCost;
+    }
+
+
+    public int thridSolustion(OrderItem[] order, Map<String, Pizza> pizzaName, int cost) {
+        int discountedCost = cost;
+        Map<String, Integer> smallCounts = new HashMap<>();
+        Map<String, Integer> largeCounts = new HashMap<>();
+
+        for (OrderItem item : order) {
+            if (item.size.equals("Small")) {
+                smallCounts.put(item.name, smallCounts.getOrDefault(item.name, 0) + item.quantity);
+            } else if (item.size.equals("Large")) {
+                largeCounts.put(item.name, largeCounts.getOrDefault(item.name, 0) + item.quantity);
+            }
+        }
+
+        for(String pizzaNameStr : smallCounts.keySet()){
+            if(largeCounts.containsKey(pizzaNameStr)){
+                int discountCount = Math.min(smallCounts.get(pizzaNameStr), largeCounts.get(pizzaNameStr));
+                Pizza pizza = pizzaName.get(pizzaNameStr);
+                discountedCost -= pizza.price_S * discountCount;
+            }
+        }
+        return discountedCost;
+    }
+
+
+    public int secondSolustion(OrderItem[] order, Map<String, Pizza> pizzaName, int cost) {
+        int minCost = cost;
+        Map<String, Integer> pizzaCounts = new HashMap<>();
+        for (OrderItem item : order) {
+            pizzaCounts.put(item.name, pizzaCounts.getOrDefault(item.name, 0) + item.quantity);
+        }
+
+        for(String name : pizzaCounts.keySet()){
+            if (pizzaCounts.get(name) >= 5) {
+                Pizza pizza = pizzaName.get(name);
+                int minPrice = Integer.MAX_VALUE;
+                for (OrderItem item : order) {
+                    if(item.name.equals(name)){
+                        switch (item.size) {
+                            case "Small":
+                                minPrice = Math.min(minPrice,pizza.price_S);
+                                break;
+                            case "Medium":
+                                minPrice =  Math.min(minPrice,pizza.price_M);
+                                break;
+                            case "Large":
+                                minPrice =  Math.min(minPrice,pizza.price_L);
+                                break;
+                        }
+                    }
+                }
+                minCost = Math.min(minCost,cost - (minPrice * 5) + 100);
+
+            }
+        }
+
+        return minCost;
+    }
+
+
+    public int firstSolustion(OrderItem[] order, Map<String, Pizza> pizzaName, int cost) {
+        int minCost = cost;
+        List<Integer> pizzaPrices = new ArrayList<>();
         for (OrderItem item : order) {
             Pizza pizza = pizzaName.get(item.name);
             int price = 0;
@@ -36,128 +171,10 @@ class Solution {
             for(int i = 0; i < item.quantity; i++){
                 pizzaPrices.add(price);
             }
-                totalCost += price * item.quantity;
         }
-
-        //1할인
-        int firstVal = 0;
-        if (totalPizzas(order) >= 3) {
-            firstVal = firstSolustion(pizzaPrices,totalCost);
-            if(firstVal<totalCost && firstVal != 0){
-                totalCost = firstVal;
-            }
-        }
-        //2할인
-        int secondVal = 0;
-        if (hasFiveSamePizza(order)) {
-            secondVal = secondSolustion(order,pizzaName,totalCost);
-            if(secondVal<totalCost && secondVal != 0){
-                totalCost = firstVal;
-            }
-        }
-        //3할인
-        int thridVal = thridSolustion(order,pizzaName,totalCost);
-        if(thridVal<totalCost && thridVal != 0){
-            totalCost = firstVal;
-        }
-        //4할인
-        int fourthVal = 0;
-        if (hasThreeLargePizza(order)) {
-            fourthVal = fourthSolustion(order,pizzaName,totalCost);
-            if(fourthVal<totalCost && fourthVal != 0){
-                totalCost = firstVal;
-            }
-        }
-        return totalCost;
-    }
-
-    public int fourthSolustion(OrderItem[] order, Map<String, Pizza> pizzaName, int cost){
-        int minCost = cost;
-
-        List<OrderItem> largePizzas = new ArrayList<>();
-        for (OrderItem item : order) {
-            if (item.size.equals("Large")) {
-                for(int i=0; i < item.quantity; i++){
-                    largePizzas.add(item);
-                }
-            }
-        }
-        if(largePizzas.size() >= 3){
-            for (int i = 0; i <= largePizzas.size() - 3; i++) {
-
-                int tempCost = cost;
-                for(int j = i; j< i + 3; j++){
-                    Pizza pizza = pizzaName.get(largePizzas.get(j).name);
-                    tempCost -= pizza.price_L;
-                    tempCost += pizza.price_M;
-                }
-                minCost = Math.min(minCost, tempCost);
-            }
-        }
-        return minCost;
-    }
-
-
-    public int thridSolustion(OrderItem[] order, Map<String, Pizza> pizzaName, int cost) {
-        int minCost = cost;
-        Map<String, Integer> smallCounts = new HashMap<>();
-        Map<String, Integer> largeCounts = new HashMap<>();
-
-        for(OrderItem item : order){
-            if(item.size.equals("Small")){
-                smallCounts.put(item.name, smallCounts.getOrDefault(item.name, 0) + item.quantity);
-            } else if(item.size.equals("Large")){
-                largeCounts.put(item.name, largeCounts.getOrDefault(item.name, 0) + item.quantity);
-            }
-        }
-
-        for(OrderItem item: order){
-            Pizza pizza = pizzaName.get(item.name);
-            int price = 0;
-            if(item.size.equals("Small")){
-                price = pizza.price_S;
-                if (largeCounts.containsKey(item.name) && largeCounts.get(item.name) > 0) {
-                    int discountCount = Math.min(smallCounts.get(item.name), largeCounts.get(item.name));
-                    minCost -= price * discountCount;
-                    largeCounts.put(item.name, largeCounts.get(item.name) - discountCount);
-                }
-            }else{
-                price =  item.size.equals("Medium") ? pizza.price_M : pizza.price_L;
-                minCost += price * item.quantity;
-            }
-        }
-        return minCost;
-    }
-
-    public int secondSolustion(OrderItem[] order,Map<String, Pizza> pizzaName,int cost){
-        int minCost = 0;
-        for(OrderItem item: order){
-            if(item.quantity >= 5){
-                Pizza pizza = pizzaName.get(item.name);
-                int price = 0;
-                switch (item.size) {
-                    case "Small":
-                        price = pizza.price_S;
-                        break;
-                    case "Medium":
-                        price = pizza.price_M;
-                        break;
-                    case "Large":
-                        price = pizza.price_L;
-                        break;
-                }
-                minCost = cost - (price * 5) + 100;
-            }
-        }
-        return minCost;
-    }
-
-
-    public int firstSolustion(List<Integer> pizzaPrices , int cost){
-        int minCost = cost;
-        if(pizzaPrices.size() >=3){
+        if (pizzaPrices.size() >= 3) {
             int minPrice = pizzaPrices.get(0);
-            for(int price: pizzaPrices){
+            for (int price : pizzaPrices) {
                 minPrice = Math.min(minPrice, price);
             }
             minCost -= minPrice;
@@ -186,16 +203,14 @@ class Solution {
 
     public int totalPizzas(OrderItem[] order) {
         int total = 0;
-        for(OrderItem item: order){
+        for (OrderItem item : order) {
             total += item.quantity;
         }
         return total;
     }
-
 }
 
-class Pizza
-{
+class Pizza {
     public String name;
     public int price_S;
     public int price_M;
