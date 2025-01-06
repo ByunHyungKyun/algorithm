@@ -34,30 +34,23 @@ class Solution {
             totalCost += price * item.quantity;
         }
 
-        int minCost = totalCost; // 초기값은 할인 없는 총 비용
+        int minCost = totalCost;
 
-
-        // 1. 3개 이상 피자 할인
         int discount1Cost = totalCost;
         if(totalPizzas(order) >= 3){
             discount1Cost =  firstSolustion(order,pizzaName,totalCost);
             minCost = Math.min(minCost,discount1Cost);
         }
 
-
-        // 2. 5개 동일 피자 할인
         int discount2Cost = totalCost;
         if (hasFiveSamePizza(order)) {
             discount2Cost = secondSolustion(order, pizzaName, totalCost);
             minCost = Math.min(minCost,discount2Cost);
         }
 
-        // 3. 스몰 - 라지 조합 할인
         int discount3Cost = thridSolustion(order, pizzaName, totalCost);
         minCost = Math.min(minCost,discount3Cost);
 
-
-        // 4. 라지 피자 3개 이상 할인
         int discount4Cost = totalCost;
         if (hasThreeLargePizza(order)) {
             discount4Cost = fourthSolustion(order, pizzaName, totalCost);
@@ -122,34 +115,76 @@ class Solution {
         for (OrderItem item : order) {
             pizzaCounts.put(item.name, pizzaCounts.getOrDefault(item.name, 0) + item.quantity);
         }
-
-        for(String name : pizzaCounts.keySet()){
-            if (pizzaCounts.get(name) >= 5) {
+        String bestPizzaName = null;
+        int bestPrice = cost;
+        for(String name: pizzaCounts.keySet()){
+            if(pizzaCounts.get(name) >= 5){
                 Pizza pizza = pizzaName.get(name);
-                int minPrice = Integer.MAX_VALUE;
-                for (OrderItem item : order) {
+                int price = 0;
+                int min_price = Integer.MAX_VALUE;
+                for(OrderItem item : order){
                     if(item.name.equals(name)){
                         switch (item.size) {
                             case "Small":
-                                minPrice = Math.min(minPrice,pizza.price_S);
+                                min_price = Math.min(min_price,pizza.price_S);
                                 break;
                             case "Medium":
-                                minPrice =  Math.min(minPrice,pizza.price_M);
+                                min_price = Math.min(min_price,pizza.price_M);
                                 break;
                             case "Large":
-                                minPrice =  Math.min(minPrice,pizza.price_L);
+                                min_price = Math.min(min_price,pizza.price_L);
                                 break;
                         }
                     }
                 }
-                minCost = Math.min(minCost,cost - (minPrice * 5) + 100);
+                int currentPrice = cost;
+                for (OrderItem item : order) {
+                    if(item.name.equals(name)){
+                        if(pizzaCounts.get(name) >= 5){
+                            currentPrice = cost;
+                            for (OrderItem orderItem : order) {
+                                Pizza pizzaTemp = pizzaName.get(orderItem.name);
+                                int priceTemp = 0;
+                                if(orderItem.name.equals(name)){
+                                    switch (orderItem.size) {
+                                        case "Small":
+                                            priceTemp = pizzaTemp.price_S;
+                                            break;
+                                        case "Medium":
+                                            priceTemp = pizzaTemp.price_M;
+                                            break;
+                                        case "Large":
+                                            priceTemp = pizzaTemp.price_L;
+                                            break;
+                                    }
+
+                                }
+                                if(orderItem.name.equals(name) && pizzaCounts.get(name) >= 5){
+                                    currentPrice -= priceTemp * Math.min(orderItem.quantity,5);
+                                    currentPrice += 100;
+                                    pizzaCounts.put(name, pizzaCounts.get(name) - 5);
+                                    break;
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+                if (currentPrice < bestPrice) {
+                    bestPrice = currentPrice;
+                    bestPizzaName = name;
+                }
 
             }
         }
-
+        if(bestPizzaName != null){
+            minCost = bestPrice;
+        }
         return minCost;
     }
-
 
     public int firstSolustion(OrderItem[] order, Map<String, Pizza> pizzaName, int cost) {
         int minCost = cost;
